@@ -1,0 +1,24 @@
+{
+  "name": "doubletick-cli",
+  "version": "1.0.0",
+  "description": "CLI and MCP server for DoubleTick email read tracking",
+  "type": "module",
+  "bin": {
+    "doubletick": "./bin/doubletick.js"
+  },
+  "main": "mcp-server.js",
+  "scripts": {
+    "start": "node bin/doubletick.js",
+    "mcp": "node mcp-server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "commander": "^13.0.0",
+    "google-auth-library": "^9.0.0",
+    "googleapis": "^144.0.0",
+    "marked": "^15.0.0"
+  }
+}
