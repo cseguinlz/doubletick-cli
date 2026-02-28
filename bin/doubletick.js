@@ -15,8 +15,8 @@ program
 program
   .command('auth')
   .description('Authenticate with Gmail and DoubleTick (one-time setup)')
-  .requiredOption('--client-id <id>', 'Google OAuth client ID')
-  .requiredOption('--client-secret <secret>', 'Google OAuth client secret')
+  .option('--client-id <id>', 'Custom Google OAuth client ID (optional)')
+  .option('--client-secret <secret>', 'Custom Google OAuth client secret (optional)')
   .action(async (opts) => {
     try {
       await authenticate(opts.clientId, opts.clientSecret);
