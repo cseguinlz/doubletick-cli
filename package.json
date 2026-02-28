@@ -11,6 +11,11 @@
     "start": "node bin/doubletick.js",
     "mcp": "node mcp-server.js"
   },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cseguinlz/doubletick-cli"
+  },
   "engines": {
     "node": ">=18"
   },
