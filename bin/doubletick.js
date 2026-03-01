@@ -128,33 +128,67 @@ program
   });
 
 // ── status ────────────────────────────────────────────────────────────
+
+function printStatus(data) {
+  console.log(`\nTracking: ${data.trackingId}`);
+  console.log(`Subject: ${data.emailSubject || '(no subject)'}`);
+  console.log(`To: ${data.recipientEmail || '(unknown)'}`);
+  console.log(`Status: ${data.statusMessage}`);
+
+  if (data.openCount > 0) {
+    console.log(`\nOpens (${data.openCount}):`);
+    for (const open of data.opens || []) {
+      const device = open.device || 'Unknown';
+      const time = open.formattedTimestamp || open.timeAgo || '';
+      console.log(`  - ${time} · ${device}`);
+    }
+  } else {
+    console.log('\nNot opened yet.');
+  }
+}
+
 program
-  .command('status <trackingId>')
+  .command('status [trackingId]')
   .description('Check if a tracked email has been opened')
-  .action(async (trackingId) => {
+  .option('--last', 'Check the most recently sent tracked email')
+  .option('--to <email>', 'Find tracked email by recipient')
+  .action(async (trackingId, opts) => {
     try {
       if (!isAuthenticated()) {
         console.error('Not logged in. Run `doubletick login` first.');
         process.exit(1);
       }
 
-      const data = await checkStatus(trackingId);
+      // Resolve tracking ID from shortcuts
+      if (!trackingId && (opts.last || opts.to)) {
+        const dashboard = await getDashboard(opts.to ? 200 : 1);
+        const tracks = dashboard.tracks;
 
-      console.log(`\nTracking: ${data.trackingId}`);
-      console.log(`Subject: ${data.emailSubject || '(no subject)'}`);
-      console.log(`To: ${data.recipientEmail || '(unknown)'}`);
-      console.log(`Status: ${data.statusMessage}`);
-
-      if (data.openCount > 0) {
-        console.log(`\nOpens (${data.openCount}):`);
-        for (const open of data.opens || []) {
-          const device = open.device || 'Unknown';
-          const time = open.formattedTimestamp || open.timeAgo || '';
-          console.log(`  - ${time} · ${device}`);
+        if (opts.to) {
+          const match = tracks.find(t =>
+            t.recipientEmail?.toLowerCase() === opts.to.toLowerCase()
+          );
+          if (!match) {
+            console.error(`No tracked email found for: ${opts.to}`);
+            process.exit(1);
+          }
+          trackingId = match.trackingId;
+        } else {
+          if (tracks.length === 0) {
+            console.error('No tracked emails yet.');
+            process.exit(1);
+          }
+          trackingId = tracks[0].trackingId;
         }
-      } else {
-        console.log('\nNot opened yet.');
       }
+
+      if (!trackingId) {
+        console.error('Provide a tracking ID, or use --last or --to <email>');
+        process.exit(1);
+      }
+
+      const data = await checkStatus(trackingId);
+      printStatus(data);
     } catch (err) {
       console.error('Error:', err.message);
       process.exit(1);
