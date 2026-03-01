@@ -2,7 +2,7 @@
 
 import { program } from 'commander';
 import { marked } from 'marked';
-import { authenticate, isAuthenticated, getUserEmail } from '../lib/auth.js';
+import { authenticate, logout, isAuthenticated, getUserEmail } from '../lib/auth.js';
 import { sendEmail, createDraft } from '../lib/gmail.js';
 import { generateTrackingId, injectPixel, registerTrack, checkStatus, getDashboard } from '../lib/tracking.js';
 
@@ -11,18 +11,33 @@ program
   .description('Email read tracking via DoubleTick')
   .version('1.0.0');
 
-// ── auth ──────────────────────────────────────────────────────────────
+// ── login ─────────────────────────────────────────────────────────────
 program
-  .command('auth')
-  .description('Authenticate with Gmail and DoubleTick (one-time setup)')
+  .command('login')
+  .description('Log in with your Gmail account (one-time setup)')
   .option('--client-id <id>', 'Custom Google OAuth client ID (optional)')
   .option('--client-secret <secret>', 'Custom Google OAuth client secret (optional)')
   .action(async (opts) => {
     try {
       await authenticate(opts.clientId, opts.clientSecret);
       console.log('\nSetup complete! You can now send tracked emails.');
+      process.exit(0);
     } catch (err) {
-      console.error('Auth failed:', err.message);
+      console.error('Login failed:', err.message);
+      process.exit(1);
+    }
+  });
+
+// ── logout ────────────────────────────────────────────────────────────
+program
+  .command('logout')
+  .description('Log out and remove stored credentials')
+  .action(() => {
+    try {
+      logout();
+      console.log('Logged out. Credentials removed.');
+    } catch (err) {
+      console.error('Logout failed:', err.message);
       process.exit(1);
     }
   });
@@ -42,7 +57,7 @@ program
   .action(async (opts) => {
     try {
       if (!isAuthenticated()) {
-        console.error('Not authenticated. Run `doubletick auth` first.');
+        console.error('Not logged in. Run `doubletick login` first.');
         process.exit(1);
       }
 
@@ -119,7 +134,7 @@ program
   .action(async (trackingId) => {
     try {
       if (!isAuthenticated()) {
-        console.error('Not authenticated. Run `doubletick auth` first.');
+        console.error('Not logged in. Run `doubletick login` first.');
         process.exit(1);
       }
 
@@ -154,7 +169,7 @@ program
   .action(async (opts) => {
     try {
       if (!isAuthenticated()) {
-        console.error('Not authenticated. Run `doubletick auth` first.');
+        console.error('Not logged in. Run `doubletick login` first.');
         process.exit(1);
       }
 
