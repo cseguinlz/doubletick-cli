@@ -28,7 +28,7 @@ server.tool(
   },
   async ({ to, subject, body, cc, bcc, send, html }) => {
     if (!isAuthenticated()) {
-      return { content: [{ type: 'text', text: 'Not authenticated. Run `doubletick auth` in the terminal first.' }] };
+      return { content: [{ type: 'text', text: 'Not authenticated. Run `doubletick login` in the terminal first.' }] };
     }
 
     // Convert body
@@ -79,7 +79,7 @@ server.tool(
   },
   async ({ trackingId }) => {
     if (!isAuthenticated()) {
-      return { content: [{ type: 'text', text: 'Not authenticated. Run `doubletick auth` in the terminal first.' }] };
+      return { content: [{ type: 'text', text: 'Not authenticated. Run `doubletick login` in the terminal first.' }] };
     }
 
     const data = await checkStatus(trackingId);
@@ -110,7 +110,7 @@ server.tool(
   },
   async ({ limit }) => {
     if (!isAuthenticated()) {
-      return { content: [{ type: 'text', text: 'Not authenticated. Run `doubletick auth` in the terminal first.' }] };
+      return { content: [{ type: 'text', text: 'Not authenticated. Run `doubletick login` in the terminal first.' }] };
     }
 
     const data = await getDashboard(limit);
