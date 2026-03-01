@@ -5,7 +5,7 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { z } from 'zod';
 import { marked } from 'marked';
 import { isAuthenticated } from './lib/auth.js';
-import { sendEmail, createDraft } from './lib/gmail.js';
+import { sendEmail } from './lib/gmail.js';
 import { generateTrackingId, injectPixel, registerTrack, checkStatus, getDashboard } from './lib/tracking.js';
 
 const server = new McpServer({
@@ -16,17 +16,16 @@ const server = new McpServer({
 // ── send_tracked_email ────────────────────────────────────────────────
 server.tool(
   'send_tracked_email',
-  'Send an email with read tracking via Gmail. Body accepts markdown (converted to HTML automatically). Creates a draft by default; set send=true to send immediately.',
+  'Send an email with read tracking via Gmail. Body accepts markdown (converted to HTML automatically). The email is sent immediately via Gmail API.',
   {
     to: z.string().describe('Recipient email address'),
     subject: z.string().describe('Email subject'),
     body: z.string().describe('Email body in markdown or HTML'),
     cc: z.string().optional().describe('CC recipients (comma-separated)'),
     bcc: z.string().optional().describe('BCC recipients (comma-separated)'),
-    send: z.boolean().default(false).describe('Send immediately instead of creating a draft'),
     html: z.boolean().default(false).describe('Treat body as raw HTML (skip markdown conversion)'),
   },
-  async ({ to, subject, body, cc, bcc, send, html }) => {
+  async ({ to, subject, body, cc, bcc, html }) => {
     if (!isAuthenticated()) {
       return { content: [{ type: 'text', text: 'Not authenticated. Run `doubletick login` in the terminal first.' }] };
     }
@@ -49,24 +48,14 @@ server.tool(
     // Register track
     await registerTrack({ trackingId, recipientEmail: to, emailSubject: subject });
 
-    // Send or draft
-    if (send) {
-      const result = await sendEmail({ to, subject, htmlBody, cc, bcc });
-      return {
-        content: [{
-          type: 'text',
-          text: `Email sent and tracking.\n\nTo: ${to}\nSubject: ${subject}\nTracking ID: ${trackingId}\nMessage ID: ${result.messageId}\n\nCheck status with check_tracking_status tool.`,
-        }],
-      };
-    } else {
-      const result = await createDraft({ to, subject, htmlBody, cc, bcc });
-      return {
-        content: [{
-          type: 'text',
-          text: `Draft created in Gmail. User should review and send.\n\nTo: ${to}\nSubject: ${subject}\nTracking ID: ${trackingId}\nDraft ID: ${result.draftId}\n\nCheck status with check_tracking_status tool after the user sends it.`,
-        }],
-      };
-    }
+    // Send via Gmail API
+    const result = await sendEmail({ to, subject, htmlBody, cc, bcc });
+    return {
+      content: [{
+        type: 'text',
+        text: `Email sent and tracking.\n\nTo: ${to}\nSubject: ${subject}\nTracking ID: ${trackingId}\n\nCheck status with check_tracking_status tool.`,
+      }],
+    };
   }
 );
 

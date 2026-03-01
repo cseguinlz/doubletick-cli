@@ -3,7 +3,7 @@
 import { program } from 'commander';
 import { marked } from 'marked';
 import { authenticate, logout, isAuthenticated, getUserEmail } from '../lib/auth.js';
-import { sendEmail, createDraft } from '../lib/gmail.js';
+import { sendEmail } from '../lib/gmail.js';
 import { generateTrackingId, injectPixel, registerTrack, checkStatus, getDashboard } from '../lib/tracking.js';
 
 program
@@ -45,14 +45,13 @@ program
 // ── send ──────────────────────────────────────────────────────────────
 program
   .command('send')
-  .description('Send a tracked email (creates draft by default)')
+  .description('Send a tracked email via Gmail')
   .requiredOption('--to <email>', 'Recipient email address')
   .requiredOption('--subject <subject>', 'Email subject')
   .requiredOption('--body <body>', 'Email body (markdown or HTML)')
   .option('--cc <emails>', 'CC recipients (comma-separated)')
   .option('--bcc <emails>', 'BCC recipients (comma-separated)')
   .option('--html', 'Treat body as raw HTML (skip markdown conversion)')
-  .option('--send', 'Send immediately instead of creating a draft')
   .option('--body-file <path>', 'Read body from file instead of --body')
   .action(async (opts) => {
     try {
@@ -74,7 +73,6 @@ program
         htmlBody = body;
       } else {
         htmlBody = await marked(body);
-        // Wrap in minimal HTML if not already a full document
         if (!htmlBody.includes('<html')) {
           htmlBody = `<!DOCTYPE html><html><body>${htmlBody}</body></html>`;
         }
@@ -91,36 +89,21 @@ program
         emailSubject: opts.subject,
       });
 
-      // Send or create draft
-      if (opts.send) {
-        const result = await sendEmail({
-          to: opts.to,
-          subject: opts.subject,
-          htmlBody,
-          cc: opts.cc,
-          bcc: opts.bcc,
-        });
-        console.log(`\nSent and tracking.`);
-        console.log(`  To: ${opts.to}`);
-        console.log(`  Subject: ${opts.subject}`);
-        console.log(`  Tracking ID: ${trackingId}`);
-        console.log(`  Message ID: ${result.messageId}`);
-      } else {
-        const result = await createDraft({
-          to: opts.to,
-          subject: opts.subject,
-          htmlBody,
-          cc: opts.cc,
-          bcc: opts.bcc,
-        });
-        console.log(`\nDraft created in Gmail. Review and send when ready.`);
-        console.log(`  To: ${opts.to}`);
-        console.log(`  Subject: ${opts.subject}`);
-        console.log(`  Tracking ID: ${trackingId}`);
-        console.log(`  Draft ID: ${result.draftId}`);
-      }
+      // Send via Gmail API
+      const result = await sendEmail({
+        to: opts.to,
+        subject: opts.subject,
+        htmlBody,
+        cc: opts.cc,
+        bcc: opts.bcc,
+      });
 
-      console.log(`\nCheck status: doubletick status ${trackingId}`);
+      console.log(`\nSent and tracking.`);
+      console.log(`  To: ${opts.to}`);
+      console.log(`  Subject: ${opts.subject}`);
+      console.log(`  Tracking ID: ${trackingId}`);
+
+      console.log(`\nCheck status: doubletick status --last`);
     } catch (err) {
       console.error('Error:', err.message);
       process.exit(1);
