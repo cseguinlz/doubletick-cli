@@ -87,8 +87,8 @@ Add to your Claude configuration:
 {
   "mcpServers": {
     "doubletick": {
-      "command": "node",
-      "args": ["/path/to/doubletick-cli/mcp-server.js"]
+      "command": "npx",
+      "args": ["-y", "doubletick-cli"]
     }
   }
 }

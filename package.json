@@ -1,6 +1,6 @@
 {
   "name": "doubletick-cli",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "CLI and MCP server for DoubleTick email read tracking",
   "type": "module",
   "bin": {
@@ -11,11 +11,31 @@
     "start": "node bin/doubletick.js",
     "mcp": "node mcp-server.js"
   },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "mcp-server",
+    "email-tracking",
+    "gmail",
+    "read-receipt",
+    "cli",
+    "ai",
+    "claude"
+  ],
+  "author": "Carlos Seguin-Lozano",
+  "homepage": "https://doubletickr.com",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/cseguinlz/doubletick-cli"
   },
+  "files": [
+    "bin/",
+    "lib/",
+    "mcp-server.js",
+    "README.md",
+    "LICENSE"
+  ],
   "engines": {
     "node": ">=18"
   },
