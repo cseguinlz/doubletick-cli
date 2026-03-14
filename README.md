@@ -1,5 +1,9 @@
 # DoubleTick CLI
 
+<a href="https://glama.ai/mcp/servers/cseguinlz/double-tick-mcp-server">
+  <img width="380" height="200" src="https://glama.ai/mcp/servers/cseguinlz/double-tick-mcp-server/badge" />
+</a>
+
 Open-source CLI and MCP server for email read tracking via Gmail. Know when your emails are opened — from the terminal.
 
 Works with the [DoubleTick](https://doubletickr.com) backend. Tracks from the CLI show up alongside tracks from the Chrome extension.
