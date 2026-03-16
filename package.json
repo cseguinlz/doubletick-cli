@@ -8,7 +8,8 @@
   },
   "main": "mcp-server.js",
   "scripts": {
-    "start": "node bin/doubletick.js",
+    "start": "node mcp-server.js",
+    "cli": "node bin/doubletick.js",
     "mcp": "node mcp-server.js"
   },
   "keywords": [
