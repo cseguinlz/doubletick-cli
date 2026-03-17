@@ -13,7 +13,7 @@ metadata:
       - kind: node
         package: doubletick-cli
         bins:
-          - doubletick
+          - doubletick-mcp
 ---
 
 # DoubleTick

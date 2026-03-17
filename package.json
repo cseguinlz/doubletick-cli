@@ -1,10 +1,11 @@
 {
   "name": "doubletick-cli",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "CLI and MCP server for DoubleTick email read tracking",
   "type": "module",
   "bin": {
-    "doubletick": "./mcp-server.js"
+    "doubletick": "./bin/doubletick.js",
+    "doubletick-mcp": "./mcp-server.js"
   },
   "main": "mcp-server.js",
   "scripts": {
