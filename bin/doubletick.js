@@ -148,14 +148,19 @@ program
         const tracks = dashboard.tracks;
 
         if (opts.to) {
-          const match = tracks.find(t =>
+          const matches = tracks.filter(t =>
             t.recipientEmail?.toLowerCase() === opts.to.toLowerCase()
           );
-          if (!match) {
+          if (matches.length === 0) {
             console.error(`No tracked email found for: ${opts.to}`);
             process.exit(1);
           }
-          trackingId = match.trackingId;
+          // Show all matching tracks for this recipient
+          for (const match of matches) {
+            const data = await checkStatus(match.trackingId);
+            printStatus(data);
+          }
+          return;
         } else {
           if (tracks.length === 0) {
             console.error('No tracked emails yet.');
